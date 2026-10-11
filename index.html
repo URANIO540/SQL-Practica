@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL Prep — DDL, DML y SELECT</title>
+<meta name="description" content="Web de estudio para el examen: modelo físico (DDL), DML y SELECT en SQL Server, con laboratorio interactivo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fbfaf8; --surface:#ffffff; --surface-2:#f3f1ee; --text:#1c1b1a; --muted:#6b6763;
+  --border:#e5e1dc; --accent:#d71920; --accent-soft:#fdecec; --ok:#1f8a4c; --ok-soft:#e6f5ec;
+  --warn:#b26a00; --warn-soft:#fff4e0; --info:#1d5fbf; --info-soft:#e8f0fc;
+  --code-bg:#1e1d24; --code-text:#e9e7f0; --kw:#ff7ab6; --type:#ffd166; --str:#7ee08a; --num:#f6b26b; --com:#8a879a; --fn:#7cc4ff;
+  --radius:14px; --shadow:0 1px 2px rgba(0,0,0,.04),0 6px 24px rgba(0,0,0,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121114; --surface:#1b1a1f; --surface-2:#24232a; --text:#ecebef; --muted:#a19eaa;
+    --border:#2f2d36; --accent:#ff4b52; --accent-soft:#3a1b1e; --ok:#4cc982; --ok-soft:#163323;
+    --warn:#f0b041; --warn-soft:#3a2c12; --info:#6ea8ff; --info-soft:#17263f; --code-bg:#0d0c10;
+    --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121114; --surface:#1b1a1f; --surface-2:#24232a; --text:#ecebef; --muted:#a19eaa;
+  --border:#2f2d36; --accent:#ff4b52; --accent-soft:#3a1b1e; --ok:#4cc982; --ok-soft:#163323;
+  --warn:#f0b041; --warn-soft:#3a2c12; --info:#6ea8ff; --info-soft:#17263f; --code-bg:#0d0c10;
+  --shadow:none;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;line-height:1.6;font-size:16px}
+a{color:var(--accent)}
+code,pre,textarea{font-family:"JetBrains Mono",ui-monospace,monospace}
+:not(pre)>code{background:var(--surface-2);padding:.1em .4em;border-radius:6px;font-size:.88em}
+
+/* NAV */
+header.top{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+.nav{max-width:1120px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:10px 16px}
+.brand{font-weight:800;letter-spacing:-.02em;white-space:nowrap;text-decoration:none;color:var(--text)}
+.brand span{color:var(--accent)}
+.links{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;flex:1}
+.links::-webkit-scrollbar{display:none}
+.links a{color:var(--muted);text-decoration:none;font-size:.88rem;font-weight:500;padding:6px 10px;border-radius:999px;white-space:nowrap}
+.links a:hover,.links a.active{background:var(--surface-2);color:var(--text)}
+.theme-btn{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:999px;width:36px;height:36px;cursor:pointer;flex-shrink:0}
+
+main{max-width:1120px;margin:0 auto;padding:0 16px 80px}
+section{padding:56px 0 8px}
+h1,h2,h3{letter-spacing:-.02em;line-height:1.2}
+h2{font-size:clamp(1.6rem,3vw,2.1rem);margin:0 0 8px}
+h3{font-size:1.2rem;margin:28px 0 8px}
+.eyebrow{color:var(--accent);font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em}
+.lead{color:var(--muted);max-width:760px;margin:0 0 20px}
+
+/* HERO */
+.hero{padding:56px 0 24px}
+.hero h1{font-size:clamp(2rem,5vw,3.4rem);margin:8px 0 14px;font-weight:800}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}
+.pill{border:1px solid var(--border);background:var(--surface);padding:6px 12px;border-radius:999px;font-size:.85rem}
+.pill b{color:var(--accent)}
+
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.card h3{margin-top:0}
+.card p:last-child{margin-bottom:0}
+.step-n{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;font-size:.85rem;margin-right:8px}
+
+.callout{border-radius:12px;padding:14px 16px;margin:16px 0;border:1px solid transparent}
+.callout.tip{background:var(--ok-soft);border-color:color-mix(in srgb,var(--ok) 30%,transparent)}
+.callout.warn{background:var(--warn-soft);border-color:color-mix(in srgb,var(--warn) 30%,transparent)}
+.callout.info{background:var(--info-soft);border-color:color-mix(in srgb,var(--info) 30%,transparent)}
+.callout.danger{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 30%,transparent)}
+.callout strong:first-child{display:block;margin-bottom:2px}
+
+/* CODE */
+pre{background:var(--code-bg);color:var(--code-text);padding:16px 18px;border-radius:12px;overflow-x:auto;font-size:.86rem;line-height:1.55;margin:12px 0;position:relative}
+pre .copy{position:absolute;top:8px;right:8px;background:rgba(255,255,255,.08);color:#ddd;border:1px solid rgba(255,255,255,.15);border-radius:8px;font-size:.72rem;padding:3px 8px;cursor:pointer;font-family:Inter,sans-serif}
+pre .copy:hover{background:rgba(255,255,255,.18)}
+.t-kw{color:var(--kw);font-weight:600}.t-type{color:var(--type)}.t-str{color:var(--str)}.t-num{color:var(--num)}.t-com{color:var(--com);font-style:italic}.t-fn{color:var(--fn)}
+
+/* TABLES */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px;margin:12px 0;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+th{background:var(--surface-2);font-weight:600;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+td code{white-space:nowrap}
+
+/* TABS */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:18px 0 0}
+.tab{border:1px solid var(--border);background:var(--surface);color:var(--text);padding:8px 14px;border-radius:999px;cursor:pointer;font:inherit;font-size:.9rem;font-weight:500}
+.tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.panel{display:none}.panel.active{display:block}
+
+details{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin:10px 0}
+details summary{cursor:pointer;font-weight:600}
+details[open] summary{margin-bottom:8px}
+
+/* PROCESS FLOW */
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:14px 0}
+.flow span{background:var(--surface);border:1px solid var(--border);padding:6px 12px;border-radius:8px;font-family:"JetBrains Mono",monospace;font-size:.82rem;font-weight:600}
+.flow i{color:var(--muted);font-style:normal}
+.flow span.hl{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ERD */
+.erd{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin:16px 0}
+.ent{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;font-size:.84rem}
+.ent h4{margin:0;padding:8px 12px;background:var(--accent);color:#fff;font-size:.9rem}
+.ent ul{list-style:none;margin:0;padding:8px 12px}
+.ent li{display:flex;justify-content:space-between;gap:8px;padding:2px 0;font-family:"JetBrains Mono",monospace;font-size:.78rem}
+.ent li small{color:var(--muted)}
+.badge{font-size:.66rem;font-weight:700;padding:1px 6px;border-radius:5px;margin-right:4px}
+.b-pk{background:#ffd166;color:#4a3800}.b-fk{background:#7cc4ff;color:#003056}
+
+/* LAB */
+.lab{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:920px){.lab{grid-template-columns:300px 1fr}}
+.ex-list{display:flex;flex-direction:column;gap:6px;max-height:640px;overflow:auto;padding-right:4px}
+.ex-item{display:flex;align-items:center;gap:8px;text-align:left;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:10px;padding:8px 10px;cursor:pointer;font:inherit;font-size:.86rem}
+.ex-item.active{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.ex-item .dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:grid;place-items:center;font-size:.7rem;color:#fff}
+.ex-item.done .dot{background:var(--ok);border-color:var(--ok)}
+.tag{font-size:.66rem;font-weight:700;padding:2px 6px;border-radius:5px;background:var(--surface-2);color:var(--muted);margin-left:auto}
+.editor{width:100%;min-height:200px;resize:vertical;background:var(--code-bg);color:var(--code-text);border:1px solid var(--border);border-radius:12px;padding:14px;font-size:.88rem;line-height:1.55;tab-size:2}
+.editor:focus{outline:2px solid var(--accent);outline-offset:1px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.btn{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:10px;padding:8px 14px;font:inherit;font-size:.88rem;font-weight:600;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn:hover{filter:brightness(.97)}
+.out{margin-top:10px}
+.msg{padding:10px 14px;border-radius:10px;font-size:.9rem;margin:8px 0}
+.msg.ok{background:var(--ok-soft);color:var(--ok)}
+.msg.err{background:var(--accent-soft);color:var(--accent)}
+.msg.info{background:var(--info-soft);color:var(--info)}
+.res-title{font-size:.78rem;color:var(--muted);margin:10px 0 4px}
+.kbd{font-size:.75rem;color:var(--muted)}
+.mode-switch{display:flex;gap:6px;margin-bottom:12px}
+
+/* QUIZ */
+.q{margin:14px 0}
+.q-opts{display:grid;gap:8px;margin-top:10px}
+.q-opt{text-align:left;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:10px;padding:10px 14px;font:inherit;font-size:.92rem;cursor:pointer}
+.q-opt.correct{border-color:var(--ok);background:var(--ok-soft)}
+.q-opt.wrong{border-color:var(--accent);background:var(--accent-soft)}
+.q-exp{font-size:.88rem;color:var(--muted);margin-top:8px;display:none}
+.q.answered .q-exp{display:block}
+.score{position:sticky;bottom:16px;margin-top:20px;display:inline-block;background:var(--text);color:var(--bg);padding:8px 16px;border-radius:999px;font-weight:700;font-size:.9rem}
+
+.check-list{list-style:none;padding:0;margin:0}
+.check-list li{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px dashed var(--border)}
+.check-list input{margin-top:5px;accent-color:var(--accent);width:16px;height:16px}
+
+footer{border-top:1px solid var(--border);color:var(--muted);font-size:.85rem;text-align:center;padding:24px 16px}
+@media(max-width:600px){pre{font-size:.78rem;padding:14px}.card{padding:16px}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <nav class="nav">
+    <a class="brand" href="#inicio">SQL<span>Prep</span></a>
+    <div class="links" id="navlinks">
+      <a href="#ruta">Ruta</a>
+      <a href="#ddl">Modelo físico (DDL)</a>
+      <a href="#dml">DML</a>
+      <a href="#select">SELECT</a>
+      <a href="#enunciado">Del enunciado al modelo</a>
+      <a href="#caso">Caso resuelto</a>
+      <a href="#lab">Laboratorio</a>
+      <a href="#quiz">Quiz</a>
+      <a href="#checklist">Checklist</a>
+    </div>
+    <button class="theme-btn" id="themeBtn" title="Cambiar tema" aria-label="Cambiar tema">◐</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero" id="inicio">
+  <div class="eyebrow">Preparación para el examen</div>
+  <h1>Del enunciado al <em>script SQL</em>, paso a paso.</h1>
+  <p class="lead">El examen tiene <b>dos casos</b>: construir el <b>modelo físico</b> (crear la base de datos y las tablas con DDL) y manipular los datos con <b>DML</b> (INSERT, UPDATE, DELETE y SELECT). Aquí tienes la teoría de los materiales del curso, ejemplos en SQL Server y un laboratorio donde ejecutas SQL de verdad en el navegador.</p>
+  <div class="pills">
+    <span class="pill"><b>DDL</b> CREATE · ALTER · DROP · TRUNCATE · sp_rename</span>
+    <span class="pill"><b>Restricciones</b> PK · FK · UNIQUE · NOT NULL · CHECK · DEFAULT</span>
+    <span class="pill"><b>DML</b> INSERT · UPDATE · DELETE · SELECT</span>
+    <span class="pill"><b>Transacciones</b> COMMIT · ROLLBACK</span>
+  </div>
+</section>
+
+<!-- ===================== RUTA ===================== -->
+<section id="ruta">
+  <div class="eyebrow">Cómo usar esta web</div>
+  <h2>Ruta de estudio</h2>
+  <div class="grid g3" style="margin-top:16px">
+    <div class="card"><h3><span class="step-n">1</span>Teoría</h3><p>Lee DDL, DML y SELECT. Cada sección resume el material del curso con ejemplos listos para SQL Server.</p></div>
+    <div class="card"><h3><span class="step-n">2</span>Enunciado → modelo</h3><p>Aprende a convertir un texto del caso en tablas, claves y restricciones. Es lo que más pesa en el caso 1.</p></div>
+    <div class="card"><h3><span class="step-n">3</span>Caso resuelto</h3><p>Un caso completo tipo examen: script DDL, inserciones, actualizaciones, eliminaciones y consultas.</p></div>
+    <div class="card"><h3><span class="step-n">4</span>Laboratorio</h3><p>Ejercicios con corrección automática. Escribes la sentencia, la ejecutas y te dice si el resultado es correcto.</p></div>
+    <div class="card"><h3><span class="step-n">5</span>Quiz + checklist</h3><p>Repasa conceptos clave y revisa la lista de errores que más restan puntos antes de entregar.</p></div>
+  </div>
+</section>
+
+<!-- ===================== DDL ===================== -->
+<section id="ddl">
+  <div class="eyebrow">Caso 1 · Modelo físico</div>
+  <h2>DDL — Data Definition Language</h2>
+  <p class="lead">DDL define y administra la <b>estructura</b> de la base de datos: crea, modifica y elimina objetos (bases de datos, tablas, restricciones). No trabaja con los datos, sino con la arquitectura que los sostiene. Con DDL el diseño lógico (entidades, atributos, relaciones) se convierte en una estructura física ejecutable.</p>
+
+  <div class="tabs" data-group="ddl">
+    <button class="tab active" data-panel="ddl-create">CREATE</button>
+    <button class="tab" data-panel="ddl-tipos">Tipos de datos</button>
+    <button class="tab" data-panel="ddl-restr">Restricciones</button>
+    <button class="tab" data-panel="ddl-alter">ALTER</button>
+    <button class="tab" data-panel="ddl-drop">DROP · TRUNCATE · RENAME</button>
+    <button class="tab" data-panel="ddl-dic">Diccionario de datos</button>
+  </div>
+
+  <div class="panel active" id="ddl-create">
+    <h3>CREATE: el punto de partida</h3>
+    <p>Crea objetos nuevos. En el examen normalmente: primero la base de datos, luego <code>USE</code> para trabajar dentro de ella, y después las tablas.</p>
+<pre><code class="sql">CREATE DATABASE UniversityDB
+GO
+USE UniversityDB
+GO
+
+CREATE TABLE Student (
+    StudentID  INT          PRIMARY KEY,
+    FirstName  VARCHAR(100) NOT NULL,
+    LastName   VARCHAR(100) NOT NULL,
+    BirthDate  DATE,
+    Email      VARCHAR(150) UNIQUE
+)</code></pre>
+    <div class="callout info"><strong>¿Qué es GO?</strong><code>GO</code> no es SQL: es un separador de lotes de SQL Server Management Studio. Úsalo después de <code>CREATE DATABASE</code> y antes de <code>USE</code> para que la base exista antes de entrar en ella.</div>
+    <h3>Clave autoincremental: IDENTITY</h3>
+    <p>Si el caso dice que el código se genera automáticamente, usa <code>IDENTITY(inicio, incremento)</code>. En ese caso <b>no</b> envías ese valor en el INSERT.</p>
+<pre><code class="sql">CREATE TABLE Employee (
+    EmployeeID INT IDENTITY(1,1) PRIMARY KEY,
+    FirstName  VARCHAR(100) NOT NULL,
+    Salary     DECIMAL(10,2) NOT NULL
+)
+
+-- No se envía EmployeeID: lo genera el motor
+INSERT INTO Employee (FirstName, Salary) VALUES ('Luis Gomez', 2800.00)</code></pre>
+  </div>
+
+  <div class="panel" id="ddl-tipos">
+    <h3>Tipos de datos más usados en SQL Server</h3>
+    <div class="tbl-wrap"><table>
+      <tr><th>Tipo</th><th>Para qué</th><th>Ejemplo de columna</th></tr>
+      <tr><td><code>INT</code></td><td>Enteros (códigos, cantidades)</td><td>StudentID, Stock, Creditos</td></tr>
+      <tr><td><code>SMALLINT</code> / <code>TINYINT</code></td><td>Enteros pequeños (TINYINT: 0–255)</td><td>Edad, NumeroCiclo</td></tr>
+      <tr><td><code>DECIMAL(p,s)</code></td><td>Montos exactos: <i>p</i> dígitos totales, <i>s</i> decimales</td><td>Salary DECIMAL(10,2), Nota DECIMAL(4,1)</td></tr>
+      <tr><td><code>MONEY</code></td><td>Montos monetarios</td><td>Precio</td></tr>
+      <tr><td><code>VARCHAR(n)</code></td><td>Texto de longitud variable</td><td>Nombres VARCHAR(100)</td></tr>
+      <tr><td><code>NVARCHAR(n)</code></td><td>Texto Unicode (tildes, ñ, otros alfabetos)</td><td>Direccion NVARCHAR(200)</td></tr>
+      <tr><td><code>CHAR(n)</code></td><td>Texto de longitud fija</td><td>DNI CHAR(8), RUC CHAR(11), Sexo CHAR(1)</td></tr>
+      <tr><td><code>DATE</code></td><td>Solo fecha</td><td>FechaNacimiento</td></tr>
+      <tr><td><code>DATETIME</code></td><td>Fecha y hora</td><td>FechaRegistro</td></tr>
+      <tr><td><code>BIT</code></td><td>Verdadero/falso (1/0)</td><td>Activo</td></tr>
+    </table></div>
+    <div class="callout tip"><strong>Regla práctica para el examen</strong>DNI, teléfono y RUC son <b>texto</b> (<code>CHAR</code>/<code>VARCHAR</code>), no números: no se suman y pueden empezar con 0. El dinero siempre en <code>DECIMAL(10,2)</code> o <code>MONEY</code>, nunca en <code>INT</code> ni <code>FLOAT</code>.</div>
+  </div>
+
+  <div class="panel" id="ddl-restr">
+    <h3>Restricciones de integridad</h3>
+    <p>Uno de los roles más importantes del DDL es fijar reglas que mantienen la consistencia de los datos. El motor rechaza cualquier INSERT/UPDATE/DELETE que las viole.</p>
+    <div class="tbl-wrap"><table>
+      <tr><th>Restricción</th><th>Garantiza</th><th>Sintaxis</th></tr>
+      <tr><td><b>PRIMARY KEY</b></td><td>Identificador único y no nulo de cada fila</td><td><code>StudentID INT PRIMARY KEY</code></td></tr>
+      <tr><td><b>FOREIGN KEY</b></td><td>El valor existe en la tabla referenciada</td><td><code>FOREIGN KEY (StudentID) REFERENCES Student(StudentID)</code></td></tr>
+      <tr><td><b>UNIQUE</b></td><td>No se repite (pero no es la PK)</td><td><code>Email VARCHAR(150) UNIQUE</code></td></tr>
+      <tr><td><b>NOT NULL</b></td><td>El dato es obligatorio</td><td><code>FirstName VARCHAR(100) NOT NULL</code></td></tr>
+      <tr><td><b>CHECK</b></td><td>El valor cumple una condición</td><td><code>CHECK (Nota BETWEEN 0 AND 20)</code></td></tr>
+      <tr><td><b>DEFAULT</b></td><td>Valor automático si no se envía</td><td><code>Estado VARCHAR(10) DEFAULT 'Activo'</code></td></tr>
+    </table></div>
+    <h3>Restricciones nombradas (buena práctica del curso)</h3>
+    <p>Nombrar las restricciones con <code>CONSTRAINT</code> facilita leer errores y modificarlas luego. Convención: <code>PK_Tabla</code>, <code>FK_Hija_Padre</code>, <code>UQ_Tabla_Columna</code>, <code>CK_Tabla_Columna</code>, <code>DF_Tabla_Columna</code>.</p>
+<pre><code class="sql">CREATE TABLE Enrollment (
+    EnrollmentID   INT  NOT NULL,
+    StudentID      INT  NOT NULL,
+    EnrollmentDate DATE NOT NULL CONSTRAINT DF_Enrollment_Date DEFAULT GETDATE(),
+    Grade          DECIMAL(4,1) NULL,
+    CONSTRAINT PK_Enrollment PRIMARY KEY (EnrollmentID),
+    CONSTRAINT FK_Enrollment_Student FOREIGN KEY (StudentID)
+        REFERENCES Student(StudentID),
+    CONSTRAINT CK_Enrollment_Grade CHECK (Grade BETWEEN 0 AND 20)
+)</code></pre>
+    <h3>Clave primaria compuesta</h3>
+    <p>Cuando una fila se identifica por la combinación de dos columnas (típico en tablas intermedias N:M):</p>
+<pre><code class="sql">CREATE TABLE DetallePedido (
+    PedidoID   INT NOT NULL,
+    ProductoID INT NOT NULL,
+    Cantidad   INT NOT NULL CHECK (Cantidad &gt; 0),
+    CONSTRAINT PK_DetallePedido PRIMARY KEY (PedidoID, ProductoID),
+    CONSTRAINT FK_Detalle_Pedido   FOREIGN KEY (PedidoID)   REFERENCES Pedido(PedidoID),
+    CONSTRAINT FK_Detalle_Producto FOREIGN KEY (ProductoID) REFERENCES Producto(ProductoID)
+)</code></pre>
+    <div class="callout warn"><strong>Orden de creación</strong>Crea primero las tablas <b>independientes</b> (las que no tienen FK) y después las que dependen de ellas. Si creas <code>Enrollment</code> antes que <code>Student</code>, la FK falla porque la tabla referenciada aún no existe.</div>
+  </div>
+
+  <div class="panel" id="ddl-alter">
+    <h3>ALTER: modificar sin eliminar</h3>
+    <p>Permite adaptar el esquema a nuevos requerimientos sin perder la tabla ni sus datos.</p>
+<pre><code class="sql">-- Agregar una columna
+ALTER TABLE Student
+ADD Phone VARCHAR(20)
+
+-- Cambiar el tipo de dato (sintaxis de SQL Server)
+ALTER TABLE Student
+ALTER COLUMN Phone VARCHAR(30)
+
+-- Eliminar una columna
+ALTER TABLE Student
+DROP COLUMN Phone
+
+-- Agregar una restricción a una tabla existente
+ALTER TABLE Student
+ADD CONSTRAINT CK_Student_BirthDate CHECK (BirthDate &lt; '2015-01-01')
+
+-- Agregar una FK después de crear las tablas
+ALTER TABLE Enrollment
+ADD CONSTRAINT FK_Enrollment_Course FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
+
+-- Eliminar una restricción (por eso conviene nombrarlas)
+ALTER TABLE Student
+DROP CONSTRAINT CK_Student_BirthDate</code></pre>
+    <div class="callout info"><strong>Ojo con otros motores</strong>En MySQL se usa <code>MODIFY COLUMN</code> y en PostgreSQL <code>ALTER COLUMN ... TYPE</code>. En el curso se usa SQL Server: <code>ALTER COLUMN</code>.</div>
+  </div>
+
+  <div class="panel" id="ddl-drop">
+    <h3>DROP, TRUNCATE y RENAME</h3>
+    <div class="grid g3">
+      <div class="card"><h3>DROP</h3><p>Elimina el objeto <b>completo</b>: estructura y datos. Úsalo con precaución.</p><pre><code class="sql">DROP TABLE Student</code></pre></div>
+      <div class="card"><h3>TRUNCATE</h3><p>Borra <b>todas las filas</b>, pero la tabla (su definición) sigue existiendo.</p><pre><code class="sql">TRUNCATE TABLE Student</code></pre></div>
+      <div class="card"><h3>sp_rename</h3><p>En SQL Server se renombra con un procedimiento almacenado. Cambia el nombre, no la definición.</p><pre><code class="sql">EXEC sp_rename 'Student', 'Learner'
+-- columna:
+EXEC sp_rename 'Student.Phone', 'Celular', 'COLUMN'</code></pre></div>
+    </div>
+    <h3>DROP vs TRUNCATE vs DELETE</h3>
+    <div class="tbl-wrap"><table>
+      <tr><th></th><th>DELETE (DML)</th><th>TRUNCATE (DDL)</th><th>DROP (DDL)</th></tr>
+      <tr><td>¿Borra filas?</td><td>Las que cumplan el WHERE (o todas)</td><td>Todas</td><td>Todas</td></tr>
+      <tr><td>¿Admite WHERE?</td><td>Sí</td><td>No</td><td>No</td></tr>
+      <tr><td>¿La tabla sigue existiendo?</td><td>Sí</td><td>Sí</td><td>No</td></tr>
+      <tr><td>¿Reinicia IDENTITY?</td><td>No</td><td>Sí</td><td>—</td></tr>
+      <tr><td>Si la tabla es referenciada por una FK</td><td>Falla si hay filas hijas</td><td>No permitido</td><td>No permitido hasta quitar la FK o la tabla hija</td></tr>
+    </table></div>
+    <div class="callout warn"><strong>Eliminar tablas con relaciones</strong>Se eliminan en orden inverso a la creación: primero las hijas (con FK) y al final las padres.</div>
+  </div>
+
+  <div class="panel" id="ddl-dic">
+    <h3>DDL y el diccionario de datos</h3>
+    <p>Cada sentencia DDL actualiza el <b>diccionario de datos</b>: los metadatos que describen tablas, columnas, tipos, restricciones, índices y relaciones. El motor los usa para validar todas las operaciones posteriores. En SQL Server se consultan con vistas del sistema:</p>
+<pre><code class="sql">SELECT * FROM sys.tables          -- tablas existentes
+SELECT * FROM sys.columns         -- columnas
+SELECT * FROM sys.foreign_keys    -- claves foráneas
+EXEC sp_help 'Student'            -- resumen completo de una tabla
+
+-- Alternativa estándar
+SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, IS_NULLABLE
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'Student'</code></pre>
+    <div class="callout info"><strong>DDL en entornos modernos</strong>En ingeniería de datos, el DDL se trata como infraestructura como código: los scripts se versionan y herramientas como dbt generan CREATE/ALTER automáticamente, lo que permite automatizar despliegues y mantener consistencia entre ambientes.</div>
+  </div>
+</section>
+
+<!-- ===================== DML ===================== -->
+<section id="dml">
+  <div class="eyebrow">Caso 2 · Manipulación de datos</div>
+  <h2>DML — Data Manipulation Language</h2>
+  <p class="lead">Mientras DDL define la estructura, DML trabaja con los <b>datos</b> almacenados en las tablas: insertar, modificar, eliminar y consultar registros. SELECT a veces se clasifica como DQL, pero funcionalmente forma parte de la manipulación de datos.</p>
+
+  <div class="tabs" data-group="dml">
+    <button class="tab active" data-panel="dml-insert">INSERT</button>
+    <button class="tab" data-panel="dml-update">UPDATE</button>
+    <button class="tab" data-panel="dml-delete">DELETE</button>
+    <button class="tab" data-panel="dml-tx">Transacciones</button>
+  </div>
+
+  <div class="panel active" id="dml-insert">
+    <h3>INSERT: agregar filas</h3>
+    <p>Cada INSERT crea una fila nueva que debe cumplir todas las restricciones de la tabla.</p>
+<pre><code class="sql">-- Una fila (siempre lista las columnas: es más seguro)
+INSERT INTO Employee (EmployeeID, FirstName, Salary)
+VALUES (1, 'Luis Gomez', 2800.00)
+
+-- Varias filas en una sola sentencia
+INSERT INTO Employee (EmployeeID, FirstName, Salary)
+VALUES
+(2, 'Ana Torres', 3200.00),
+(3, 'Carlos Ruiz', 2500.00)
+
+-- Insertar a partir de una consulta
+INSERT INTO EmployeeBackup (EmployeeID, FirstName, Salary)
+SELECT EmployeeID, FirstName, Salary FROM Employee WHERE Salary &gt; 3000</code></pre>
+    <div class="callout warn"><strong>Al insertar, verifica</strong>
+      • Columnas NOT NULL con valor.<br>
+      • La PK no se repite.<br>
+      • El valor de cada FK <b>ya existe</b> en la tabla padre → inserta primero en las tablas padre y luego en las hijas.<br>
+      • Los CHECK se cumplen (ej. nota entre 0 y 20).<br>
+      • Textos y fechas van entre comillas simples: <code>'2026-10-11'</code>. Números sin comillas.<br>
+      • Si la PK es IDENTITY, no la envíes.</div>
+  </div>
+
+  <div class="panel" id="dml-update">
+    <h3>UPDATE: modificar filas existentes</h3>
+    <p>Operación crítica: sin un <code>WHERE</code> correcto afecta a <b>todas</b> las filas.</p>
+<pre><code class="sql">-- Aumentar 10% el salario solo del área de ventas
+UPDATE Employee
+SET Salary = Salary * 1.10
+WHERE Department = 'Sales'
+
+-- Varias columnas a la vez
+UPDATE Employee
+SET Department = 'IT', Salary = 3500.00
+WHERE EmployeeID = 2
+
+-- Asignar NULL
+UPDATE Student SET Email = NULL WHERE StudentID = 5
+
+-- Valor condicional con CASE
+UPDATE Matricula
+SET Estado = CASE WHEN Nota &gt;= 13 THEN 'Aprobada' ELSE 'Desaprobada' END
+WHERE Nota IS NOT NULL</code></pre>
+    <div class="callout danger"><strong>Sin WHERE</strong><code>UPDATE Employee SET Salary = Salary * 1.10</code> modifica todos los registros de la tabla. Truco: escribe primero el <code>SELECT * FROM ... WHERE ...</code>, comprueba qué filas devuelve y recién cambia a UPDATE.</div>
+  </div>
+
+  <div class="panel" id="dml-delete">
+    <h3>DELETE: eliminar filas</h3>
+<pre><code class="sql">DELETE FROM Employee
+WHERE EmployeeID = 1
+
+-- Sin WHERE: borra todas las filas, la tabla sigue existiendo
+DELETE FROM Employee</code></pre>
+    <p>Las claves foráneas pueden <b>impedir</b> la eliminación si existen filas hijas que dependen de la fila que intentas borrar. Opciones:</p>
+<pre><code class="sql">-- Opción 1: borrar primero las hijas y luego el padre
+DELETE FROM Enrollment WHERE StudentID = 10
+DELETE FROM Student    WHERE StudentID = 10
+
+-- Opción 2: definir la FK con borrado en cascada (en el DDL)
+CONSTRAINT FK_Enrollment_Student FOREIGN KEY (StudentID)
+    REFERENCES Student(StudentID) ON DELETE CASCADE</code></pre>
+    <div class="callout info"><strong>Error típico en SQL Server</strong><i>"The DELETE statement conflicted with the REFERENCE constraint FK_..."</i> significa que hay filas hijas. Por eso conviene nombrar las FK: el mensaje te dice exactamente cuál es.</div>
+  </div>
+
+  <div class="panel" id="dml-tx">
+    <h3>DML y control transaccional</h3>
+    <p>Los cambios hechos con DML no son permanentes hasta ejecutar <code>COMMIT</code>. Antes de eso, solo el usuario que hace los cambios los ve, se pueden revertir con <code>ROLLBACK</code>, y los demás usuarios siguen viendo el estado consistente anterior. Esto garantiza <b>atomicidad</b> (todo o nada) y <b>consistencia</b>.</p>
+<pre><code class="sql">BEGIN TRANSACTION
+
+    UPDATE Cuenta SET Saldo = Saldo - 500 WHERE CuentaID = 1
+    UPDATE Cuenta SET Saldo = Saldo + 500 WHERE CuentaID = 2
+
+    -- Si todo salió bien:
+COMMIT
+    -- Si algo falló: ROLLBACK  (deshace ambos UPDATE)
+
+-- Versión con control de errores
+BEGIN TRY
+    BEGIN TRANSACTION
+        DELETE FROM Matricula  WHERE EstudianteID = 10
+        DELETE FROM Estudiante WHERE EstudianteID = 10
+    COMMIT
+END TRY
+BEGIN CATCH
+    ROLLBACK
+    PRINT ERROR_MESSAGE()
+END CATCH</code></pre>
+    <div class="callout info"><strong>Dato de SQL Server</strong>Por defecto SQL Server trabaja en modo <i>autocommit</i>: cada sentencia suelta se confirma sola. Solo dentro de <code>BEGIN TRANSACTION</code> puedes hacer ROLLBACK.</div>
+  </div>
+</section>
+
+<!-- ===================== SELECT ===================== -->
+<section id="select">
+  <div class="eyebrow">Consultas</div>
+  <h2>La sentencia SELECT</h2>
+  <p class="lead">Recupera información de una o más tablas. Permite filtrar filas, proyectar columnas, agrupar, aplicar funciones de agregación y ordenar.</p>
+
+  <div class="grid g2">
+    <div class="card">
+      <h3>Orden de escritura</h3>
+      <div class="flow"><span>SELECT</span><i>→</i><span>FROM</span><i>→</i><span>WHERE</span><i>→</i><span>GROUP BY</span><i>→</i><span>HAVING</span><i>→</i><span>ORDER BY</span></div>
+      <p style="font-size:.9rem;color:var(--muted)">Columnas a mostrar · tablas origen · filtra filas · agrupa · filtra grupos · ordena.</p>
+    </div>
+    <div class="card">
+      <h3>Orden lógico de procesamiento</h3>
+      <div class="flow"><span class="hl">FROM</span><i>→</i><span class="hl">WHERE</span><i>→</i><span class="hl">GROUP BY</span><i>→</i><span class="hl">HAVING</span><i>→</i><span class="hl">SELECT</span><i>→</i><span class="hl">ORDER BY</span></div>
+      <p style="font-size:.9rem;color:var(--muted)">El motor procesa en este orden. Por eso un alias del SELECT <b>no</b> se puede usar en WHERE, pero <b>sí</b> en ORDER BY.</p>
+    </div>
+  </div>
+
+<pre><code class="sql">SELECT name, COUNT(OrderID) AS TotalPedidos
+FROM Orders
+WHERE status = 'Completed'          -- filtra FILAS (antes de agrupar)
+GROUP BY name
+HAVING COUNT(OrderID) &gt; 5           -- filtra GRUPOS (después de agrupar)
+ORDER BY TotalPedidos DESC          -- aquí ya se puede usar el alias</code></pre>
+
+  <h3>Condiciones de búsqueda</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Tipo</th><th>Operador</th><th>Ejemplo</th></tr>
+    <tr><td>Comparación</td><td><code>= &lt;&gt; &lt; &gt; &lt;= &gt;=</code></td><td><code>WHERE Salary &gt; 3000</code></td></tr>
+    <tr><td>Porción de cadena</td><td><code>SUBSTRING</code> (SQL Server)</td><td><code>WHERE SUBSTRING(Codigo,1,2) = 'AB'</code></td></tr>
+    <tr><td>Rangos</td><td><code>BETWEEN / NOT BETWEEN</code></td><td><code>WHERE Costo BETWEEN 400 AND 600</code> (incluye extremos)</td></tr>
+    <tr><td>Listas</td><td><code>IN / NOT IN</code></td><td><code>WHERE Ciudad IN ('Lima','Cusco')</code></td></tr>
+    <tr><td>Patrones</td><td><code>LIKE / NOT LIKE</code></td><td><code>'R%'</code> empieza con R · <code>'%ez'</code> termina en ez · <code>'%ana%'</code> contiene · <code>'_a%'</code> 2.ª letra a</td></tr>
+    <tr><td>Desconocidos</td><td><code>IS NULL / IS NOT NULL</code></td><td><code>WHERE Email IS NULL</code> (nunca <code>= NULL</code>)</td></tr>
+    <tr><td>Combinaciones</td><td><code>AND / OR / NOT</code></td><td><code>WHERE Ciudad = 'Lima' AND (Nota &gt;= 13 OR Estado = 'Activa')</code></td></tr>
+  </table></div>
+
+  <h3>Funciones de agregación</h3>
+<pre><code class="sql">SELECT COUNT(*)        AS Filas,          -- cuenta filas
+       COUNT(Email)    AS ConEmail,       -- cuenta valores NO nulos
+       SUM(Salary)     AS Planilla,
+       AVG(Salary)     AS Promedio,
+       MIN(Salary)     AS Minimo,
+       MAX(Salary)     AS Maximo
+FROM Employee</code></pre>
+  <div class="callout warn"><strong>Regla de oro del GROUP BY</strong>Toda columna del SELECT que no esté dentro de una función de agregación debe aparecer en el GROUP BY.</div>
+
+  <h3>Más herramientas útiles</h3>
+<pre><code class="sql">SELECT DISTINCT Ciudad FROM Estudiante                 -- sin repetidos
+SELECT TOP 3 * FROM Curso ORDER BY Costo DESC          -- los 3 más caros (SQL Server)
+SELECT Nombres + ' ' + Apellidos AS NombreCompleto FROM Estudiante   -- concatenar
+SELECT * FROM Estudiante WHERE YEAR(FechaNac) = 2004   -- parte de una fecha
+
+-- Unir tablas (JOIN) usando la FK
+SELECT e.Nombres, c.Nombre AS Curso, m.Nota
+FROM Matricula m
+INNER JOIN Estudiante e ON e.EstudianteID = m.EstudianteID
+INNER JOIN Curso c      ON c.CursoID      = m.CursoID
+WHERE m.Ciclo = '2026-1'
+
+-- LEFT JOIN: incluye también las filas sin coincidencia
+SELECT ca.Nombre, COUNT(e.EstudianteID) AS Alumnos
+FROM Carrera ca
+LEFT JOIN Estudiante e ON e.CarreraID = ca.CarreraID
+GROUP BY ca.Nombre</code></pre>
+</section>
+
+<!-- ===================== ENUNCIADO → MODELO ===================== -->
+<section id="enunciado">
+  <div class="eyebrow">Técnica para el caso 1</div>
+  <h2>Del enunciado al modelo físico</h2>
+  <p class="lead">El caso será un texto. Tu trabajo es leerlo como un diseñador: cada frase te da una tabla, una columna, una clave o una restricción.</p>
+  <div class="tbl-wrap"><table>
+    <tr><th>Si el enunciado dice…</th><th>En el modelo físico es…</th></tr>
+    <tr><td>"Se registra a cada <b>cliente</b> / <b>producto</b> / <b>empleado</b>…"</td><td>Una tabla (sustantivo importante = entidad)</td></tr>
+    <tr><td>"De cada cliente se guarda su nombre, DNI y teléfono"</td><td>Columnas con su tipo de dato</td></tr>
+    <tr><td>"Cada cliente se identifica con un código"</td><td><code>PRIMARY KEY</code> (con <code>IDENTITY</code> si es automático)</td></tr>
+    <tr><td>"El DNI / correo no puede repetirse"</td><td><code>UNIQUE</code></td></tr>
+    <tr><td>"Es obligatorio registrar…"</td><td><code>NOT NULL</code></td></tr>
+    <tr><td>"El precio debe ser mayor a cero", "la nota va de 0 a 20", "el estado puede ser A, B o C"</td><td><code>CHECK (Precio &gt; 0)</code>, <code>CHECK (Nota BETWEEN 0 AND 20)</code>, <code>CHECK (Estado IN ('A','B','C'))</code></td></tr>
+    <tr><td>"Si no se indica, el estado es 'Pendiente'", "la fecha es la del registro"</td><td><code>DEFAULT 'Pendiente'</code>, <code>DEFAULT GETDATE()</code></td></tr>
+    <tr><td>"Un pedido pertenece a <b>un</b> cliente; un cliente tiene <b>muchos</b> pedidos" (1:N)</td><td>FK en el lado N: <code>Pedido.ClienteID → Cliente</code></td></tr>
+    <tr><td>"Un pedido tiene muchos productos y un producto está en muchos pedidos" (N:M)</td><td>Tabla intermedia <code>DetallePedido</code> con dos FK (y sus propios atributos: cantidad, precio)</td></tr>
+    <tr><td>"Un empleado tiene un único carnet" (1:1)</td><td>FK con <code>UNIQUE</code> en una de las tablas</td></tr>
+  </table></div>
+  <div class="callout tip"><strong>Procedimiento en 6 pasos</strong>
+  1) Subraya sustantivos → tablas. 2) Lista atributos de cada una. 3) Elige la PK. 4) Detecta relaciones y cardinalidad → FK o tabla intermedia. 5) Agrega restricciones del texto (UNIQUE, CHECK, DEFAULT, NOT NULL). 6) Ordena: primero tablas padre, luego hijas.</div>
+</section>
+
+<!-- ===================== CASO RESUELTO ===================== -->
+<section id="caso">
+  <div class="eyebrow">Caso tipo examen</div>
+  <h2>Caso resuelto: Universidad</h2>
+  <div class="card">
+    <h3>Enunciado</h3>
+    <p>Una universidad necesita registrar sus <b>carreras</b> (código, nombre único y facultad). De cada <b>estudiante</b> se guarda código, nombres, apellidos, correo (no se repite y es opcional), fecha de nacimiento y ciudad (si no se indica, es Lima). Cada estudiante pertenece a una sola carrera. Los <b>cursos</b> tienen código, nombre, créditos (de 1 a 6) y costo (no negativo). Un estudiante se <b>matricula</b> en varios cursos y un curso tiene muchos estudiantes; de cada matrícula se registra el ciclo, la nota (0 a 20, puede quedar vacía) y el estado (Activa, Retirada, Aprobada o Desaprobada; por defecto Activa). Un estudiante no puede matricularse dos veces en el mismo curso en el mismo ciclo.</p>
+  </div>
+
+  <h3>Análisis</h3>
+  <div class="erd">
+    <div class="ent"><h4>Carrera</h4><ul>
+      <li><span><span class="badge b-pk">PK</span>CarreraID</span><small>INT</small></li>
+      <li><span>Nombre</span><small>UQ · NN</small></li>
+      <li><span>Facultad</span><small>NN</small></li></ul></div>
+    <div class="ent"><h4>Estudiante</h4><ul>
+      <li><span><span class="badge b-pk">PK</span>EstudianteID</span><small>INT</small></li>
+      <li><span>Nombres, Apellidos</span><small>NN</small></li>
+      <li><span>Email</span><small>UQ</small></li>
+      <li><span>FechaNac</span><small>DATE</small></li>
+      <li><span>Ciudad</span><small>DF 'Lima'</small></li>
+      <li><span><span class="badge b-fk">FK</span>CarreraID</span><small>NN</small></li></ul></div>
+    <div class="ent"><h4>Curso</h4><ul>
+      <li><span><span class="badge b-pk">PK</span>CursoID</span><small>INT</small></li>
+      <li><span>Nombre</span><small>NN</small></li>
+      <li><span>Creditos</span><small>CK 1–6</small></li>
+      <li><span>Costo</span><small>CK ≥ 0</small></li></ul></div>
+    <div class="ent"><h4>Matricula <small style="opacity:.8">(N:M)</small></h4><ul>
+      <li><span><span class="badge b-pk">PK</span>MatriculaID</span><small>INT</small></li>
+      <li><span><span class="badge b-fk">FK</span>EstudianteID</span><small>NN</small></li>
+      <li><span><span class="badge b-fk">FK</span>CursoID</span><small>NN</small></li>
+      <li><span>Ciclo</span><small>NN</small></li>
+      <li><span>Nota</span><small>CK 0–20</small></li>
+      <li><span>Estado</span><small>CK · DF</small></li></ul></div>
+  </div>
+  <p style="color:var(--muted);font-size:.9rem">Carrera 1:N Estudiante · Estudiante N:M Curso (resuelta con Matricula) · UNIQUE (EstudianteID, CursoID, Ciclo).</p>
+
+  <div class="tabs" data-group="caso">
+    <button class="tab active" data-panel="caso-ddl">1 · Script DDL</button>
+    <button class="tab" data-panel="caso-ins">2 · INSERT</button>
+    <button class="tab" data-panel="caso-upd">3 · UPDATE / DELETE</button>
+    <button class="tab" data-panel="caso-sel">4 · Consultas</button>
+  </div>
+
+  <div class="panel active" id="caso-ddl">
+<pre><code class="sql">CREATE DATABASE UniversidadDB
+GO
+USE UniversidadDB
+GO
+
+-- 1) Tablas independientes primero
+CREATE TABLE Carrera (
+    CarreraID INT          NOT NULL,
+    Nombre    VARCHAR(100) NOT NULL,
+    Facultad  VARCHAR(80)  NOT NULL,
+    CONSTRAINT PK_Carrera PRIMARY KEY (CarreraID),
+    CONSTRAINT UQ_Carrera_Nombre UNIQUE (Nombre)
+)
+GO
+
+CREATE TABLE Curso (
+    CursoID  INT           NOT NULL,
+    Nombre   VARCHAR(100)  NOT NULL,
+    Creditos INT           NOT NULL,
+    Costo    DECIMAL(8,2)  NOT NULL,
+    CONSTRAINT PK_Curso PRIMARY KEY (CursoID),
+    CONSTRAINT CK_Curso_Creditos CHECK (Creditos BETWEEN 1 AND 6),
+    CONSTRAINT CK_Curso_Costo    CHECK (Costo &gt;= 0)
+)
+GO
+
+-- 2) Tablas que dependen de otras
+CREATE TABLE Estudiante (
+    EstudianteID INT          NOT NULL,
+    Nombres      VARCHAR(100) NOT NULL,
+    Apellidos    VARCHAR(100) NOT NULL,
+    Email        VARCHAR(150) NULL,
+    FechaNac     DATE         NULL,
+    Ciudad       VARCHAR(60)  NOT NULL CONSTRAINT DF_Estudiante_Ciudad DEFAULT 'Lima',
+    CarreraID    INT          NOT NULL,
+    CONSTRAINT PK_Estudiante PRIMARY KEY (EstudianteID),
+    CONSTRAINT UQ_Estudiante_Email UNIQUE (Email),
+    CONSTRAINT FK_Estudiante_Carrera FOREIGN KEY (CarreraID)
+        REFERENCES Carrera(CarreraID)
+)
+GO
+
+-- 3) Tabla intermedia (resuelve N:M)
+CREATE TABLE Matricula (
+    MatriculaID  INT          NOT NULL,
+    EstudianteID INT          NOT NULL,
+    CursoID      INT          NOT NULL,
+    Ciclo        VARCHAR(7)   NOT NULL,
+    Nota         DECIMAL(4,1) NULL,
+    Estado       VARCHAR(12)  NOT NULL CONSTRAINT DF_Matricula_Estado DEFAULT 'Activa',
+    CONSTRAINT PK_Matricula PRIMARY KEY (MatriculaID),
+    CONSTRAINT FK_Matricula_Estudiante FOREIGN KEY (EstudianteID)
+        REFERENCES Estudiante(EstudianteID),
+    CONSTRAINT FK_Matricula_Curso FOREIGN KEY (CursoID)
+        REFERENCES Curso(CursoID),
+    CONSTRAINT CK_Matricula_Nota   CHECK (Nota BETWEEN 0 AND 20),
+    CONSTRAINT CK_Matricula_Estado CHECK (Estado IN ('Activa','Retirada','Aprobada','Desaprobada')),
+    CONSTRAINT UQ_Matricula UNIQUE (EstudianteID, CursoID, Ciclo)
+)
+GO</code></pre>
+    <div class="callout info"><strong>Nota sobre UNIQUE y NULL en SQL Server</strong>Una columna UNIQUE en SQL Server admite <b>un solo</b> NULL. Si el caso permite varios estudiantes sin correo, la alternativa es un índice único filtrado: <code>CREATE UNIQUE INDEX UQ_Email ON Estudiante(Email) WHERE Email IS NOT NULL</code>.</div>
+  </div>
+
+  <div class="panel" id="caso-ins">
+<pre><code class="sql">-- Orden: padres → hijas
+INSERT INTO Carrera (CarreraID, Nombre, Facultad) VALUES
+(1, 'Ingeniería de Sistemas', 'Ingeniería'),
+(2, 'Ingeniería de Software', 'Ingeniería'),
+(3, 'Administración', 'Negocios'),
+(4, 'Arquitectura', 'Arquitectura')
+
+INSERT INTO Curso (CursoID, Nombre, Creditos, Costo) VALUES
+(1, 'Base de Datos', 4, 550.00),
+(2, 'Programación I', 4, 520.00),
+(3, 'Matemática Discreta', 3, 400.00)
+
+-- Ciudad no se envía: toma el DEFAULT 'Lima'
+INSERT INTO Estudiante (EstudianteID, Nombres, Apellidos, Email, FechaNac, CarreraID)
+VALUES (1, 'Ana', 'Torres', 'ana.torres@mail.com', '2004-05-12', 1)
+
+INSERT INTO Estudiante (EstudianteID, Nombres, Apellidos, Email, FechaNac, Ciudad, CarreraID)
+VALUES (2, 'Luis', 'Gómez', 'luis.gomez@mail.com', '2003-11-02', 'Arequipa', 1)
+
+-- Estado no se envía: toma 'Activa'. Nota NULL porque aún no hay calificación
+INSERT INTO Matricula (MatriculaID, EstudianteID, CursoID, Ciclo, Nota)
+VALUES (1, 1, 1, '2026-1', NULL)
+
+-- ❌ Esto FALLA: el estudiante 99 no existe (viola FK_Matricula_Estudiante)
+-- INSERT INTO Matricula (MatriculaID, EstudianteID, CursoID, Ciclo) VALUES (2, 99, 1, '2026-1')
+
+-- ❌ Esto FALLA: nota 25 viola CK_Matricula_Nota
+-- INSERT INTO Matricula (MatriculaID, EstudianteID, CursoID, Ciclo, Nota) VALUES (3, 2, 1, '2026-1', 25)</code></pre>
+  </div>
+
+  <div class="panel" id="caso-upd">
+<pre><code class="sql">-- Registrar la nota de una matrícula
+UPDATE Matricula SET Nota = 16 WHERE MatriculaID = 1
+
+-- Actualizar estado según la nota (aprobatoria 13 en este caso)
+UPDATE Matricula SET Estado = 'Aprobada'
+WHERE Ciclo = '2026-1' AND Nota &gt;= 13
+
+UPDATE Matricula SET Estado = 'Desaprobada'
+WHERE Ciclo = '2026-1' AND Nota &lt; 13
+
+-- Subir 5% el costo de los cursos de 4 créditos
+UPDATE Curso SET Costo = Costo * 1.05 WHERE Creditos = 4
+
+-- Cambiar de carrera a un estudiante
+UPDATE Estudiante SET CarreraID = 2 WHERE EstudianteID = 2
+
+-- Eliminar matrículas retiradas
+DELETE FROM Matricula WHERE Estado = 'Retirada'
+
+-- Eliminar un estudiante con matrículas: primero hijas, luego padre
+BEGIN TRANSACTION
+    DELETE FROM Matricula  WHERE EstudianteID = 2
+    DELETE FROM Estudiante WHERE EstudianteID = 2
+COMMIT</code></pre>
+  </div>
+
+  <div class="panel" id="caso-sel">
+<pre><code class="sql">-- Estudiantes de Lima ordenados por apellido
+SELECT EstudianteID, Nombres, Apellidos
+FROM Estudiante
+WHERE Ciudad = 'Lima'
+ORDER BY Apellidos ASC
+
+-- Cantidad de estudiantes por carrera (incluye carreras sin alumnos)
+SELECT c.Nombre, COUNT(e.EstudianteID) AS Cantidad
+FROM Carrera c
+LEFT JOIN Estudiante e ON e.CarreraID = c.CarreraID
+GROUP BY c.Nombre
+ORDER BY Cantidad DESC
+
+-- Promedio por curso, solo cursos con promedio mayor a 14
+SELECT cu.Nombre, AVG(m.Nota) AS Promedio
+FROM Matricula m
+INNER JOIN Curso cu ON cu.CursoID = m.CursoID
+WHERE m.Nota IS NOT NULL
+GROUP BY cu.Nombre
+HAVING AVG(m.Nota) &gt; 14
+
+-- Estudiantes sin correo registrado
+SELECT Nombres, Apellidos FROM Estudiante WHERE Email IS NULL</code></pre>
+  </div>
+
+  <h3>Caso para practicar: Tienda</h3>
+  <div class="card">
+    <p>Una tienda registra <b>clientes</b> (código autogenerado, nombres, DNI de 8 caracteres único y obligatorio, teléfono opcional) y <b>productos</b> (código autogenerado, descripción, precio mayor a cero, stock no negativo con valor por defecto 0). Cada <b>pedido</b> tiene número autogenerado, fecha (por defecto la fecha actual) y pertenece a un cliente. Un pedido incluye varios productos; de cada producto en el pedido se guarda la cantidad (mayor a cero) y el precio de venta.</p>
+    <p><b>Se pide:</b> (a) script DDL completo con restricciones nombradas; (b) insertar 2 clientes, 3 productos y un pedido con 2 productos; (c) bajar 10% el precio de los productos con stock mayor a 50; (d) eliminar los clientes que no tienen pedidos; (e) listar el total vendido por pedido.</p>
+  </div>
+  <details><summary>Ver solución propuesta</summary>
+<pre><code class="sql">CREATE DATABASE TiendaDB
+GO
+USE TiendaDB
+GO
+
+CREATE TABLE Cliente (
+    ClienteID INT IDENTITY(1,1) NOT NULL,
+    Nombres   VARCHAR(120) NOT NULL,
+    DNI       CHAR(8)      NOT NULL,
+    Telefono  VARCHAR(15)  NULL,
+    CONSTRAINT PK_Cliente PRIMARY KEY (ClienteID),
+    CONSTRAINT UQ_Cliente_DNI UNIQUE (DNI)
+)
+
+CREATE TABLE Producto (
+    ProductoID  INT IDENTITY(1,1) NOT NULL,
+    Descripcion VARCHAR(150)  NOT NULL,
+    Precio      DECIMAL(10,2) NOT NULL,
+    Stock       INT           NOT NULL CONSTRAINT DF_Producto_Stock DEFAULT 0,
+    CONSTRAINT PK_Producto PRIMARY KEY (ProductoID),
+    CONSTRAINT CK_Producto_Precio CHECK (Precio &gt; 0),
+    CONSTRAINT CK_Producto_Stock  CHECK (Stock &gt;= 0)
+)
+
+CREATE TABLE Pedido (
+    PedidoID  INT IDENTITY(1,1) NOT NULL,
+    Fecha     DATE NOT NULL CONSTRAINT DF_Pedido_Fecha DEFAULT GETDATE(),
+    ClienteID INT  NOT NULL,
+    CONSTRAINT PK_Pedido PRIMARY KEY (PedidoID),
+    CONSTRAINT FK_Pedido_Cliente FOREIGN KEY (ClienteID) REFERENCES Cliente(ClienteID)
+)
+
+CREATE TABLE DetallePedido (
+    PedidoID    INT           NOT NULL,
+    ProductoID  INT           NOT NULL,
+    Cantidad    INT           NOT NULL,
+    PrecioVenta DECIMAL(10,2) NOT NULL,
+    CONSTRAINT PK_DetallePedido PRIMARY KEY (PedidoID, ProductoID),
+    CONSTRAINT FK_Detalle_Pedido   FOREIGN KEY (PedidoID)   REFERENCES Pedido(PedidoID),
+    CONSTRAINT FK_Detalle_Producto FOREIGN KEY (ProductoID) REFERENCES Producto(ProductoID),
+    CONSTRAINT CK_Detalle_Cantidad CHECK (Cantidad &gt; 0)
+)
+GO
+
+-- (b) IDENTITY: no se envían los códigos
+INSERT INTO Cliente (Nombres, DNI, Telefono) VALUES
+('Rosa Huamán', '45879632', '987654321'),
+('Pedro Lazo',  '70214589', NULL)
+
+INSERT INTO Producto (Descripcion, Precio, Stock) VALUES
+('Mouse inalámbrico', 45.90, 80),
+('Teclado mecánico', 189.00, 25),
+('Monitor 24"', 649.00, 60)
+
+INSERT INTO Pedido (ClienteID) VALUES (1)          -- Fecha = GETDATE()
+INSERT INTO DetallePedido (PedidoID, ProductoID, Cantidad, PrecioVenta) VALUES
+(1, 1, 2, 45.90),
+(1, 3, 1, 649.00)
+
+-- (c)
+UPDATE Producto SET Precio = Precio * 0.90 WHERE Stock &gt; 50
+
+-- (d)
+DELETE FROM Cliente
+WHERE ClienteID NOT IN (SELECT ClienteID FROM Pedido)
+
+-- (e)
+SELECT PedidoID, SUM(Cantidad * PrecioVenta) AS Total
+FROM DetallePedido
+GROUP BY PedidoID</code></pre>
+  </details>
+</section>
+
+<!-- ===================== LAB ===================== -->
+<section id="lab">
+  <div class="eyebrow">Practica ejecutando</div>
+  <h2>Laboratorio SQL</h2>
+  <p class="lead">La base del caso <b>Universidad</b> ya está cargada con datos. Escribe tu sentencia y pulsa <b>Comprobar</b>: se ejecuta en una copia limpia y se compara con la solución. Usa el modo libre para experimentar.</p>
+  <div class="callout warn"><strong>Importante</strong>El laboratorio corre en <b>SQLite</b> dentro del navegador, que entiende casi todo el SQL estándar. No funcionan cosas propias de SQL Server como <code>IDENTITY</code>, <code>GO</code>, <code>USE</code>, <code>TOP</code>, <code>GETDATE()</code>, <code>ALTER COLUMN</code>, <code>sp_rename</code> o concatenar con <code>+</code> (aquí es <code>||</code>). En el examen escribe la versión de SQL Server de la teoría.</div>
+
+  <div class="mode-switch">
+    <button class="tab active" id="modeEx">Ejercicios</button>
+    <button class="tab" id="modeFree">Modo libre</button>
+    <button class="tab" id="modeSchema">Ver tablas y datos</button>
+  </div>
+
+  <div id="labStatus" class="msg info">Cargando motor SQL…</div>
+
+  <div id="panelEx" class="lab">
+    <div>
+      <div class="ex-list" id="exList"></div>
+      <p class="kbd" id="progressTxt" style="margin-top:8px"></p>
+    </div>
+    <div class="card">
+      <div class="eyebrow" id="exTag"></div>
+      <h3 id="exTitle" style="margin-top:4px"></h3>
+      <p id="exPrompt"></p>
+      <textarea class="editor" id="exEditor" spellcheck="false" placeholder="Escribe tu SQL aquí…"></textarea>
+      <div class="btns">
+        <button class="btn primary" id="exRun">▶ Comprobar</button>
+        <button class="btn" id="exHint">Pista</button>
+        <button class="btn" id="exSol">Ver solución</button>
+        <button class="btn" id="exNext">Siguiente →</button>
+      </div>
+      <span class="kbd">Ctrl/⌘ + Enter para comprobar</span>
+      <div class="out" id="exOut"></div>
+    </div>
+  </div>
+
+  <div id="panelFree" class="card" style="display:none">
+    <textarea class="editor" id="freeEditor" spellcheck="false">SELECT e.Nombres, e.Apellidos, c.Nombre AS Carrera
+FROM Estudiante e
+INNER JOIN Carrera c ON c.CarreraID = e.CarreraID
+ORDER BY e.Apellidos;</textarea>
+    <div class="btns">
+      <button class="btn primary" id="freeRun">▶ Ejecutar</button>
+      <button class="btn" id="freeReset">↺ Reiniciar base de datos</button>
+    </div>
+    <span class="kbd">Los cambios (INSERT, UPDATE, DELETE, CREATE…) se mantienen hasta que reinicies. Ctrl/⌘ + Enter para ejecutar.</span>
+    <div class="out" id="freeOut"></div>
+  </div>
+
+  <div id="panelSchema" style="display:none"></div>
+</section>
+
+<!-- ===================== QUIZ ===================== -->
+<section id="quiz">
+  <div class="eyebrow">Autoevaluación</div>
+  <h2>Quiz de conceptos</h2>
+  <p class="lead">Preguntas sobre los materiales del curso. Elige una opción para ver la explicación.</p>
+  <div id="quizBox"></div>
+  <div class="score" id="quizScore">0 / 0</div>
+  <div class="btns"><button class="btn" id="quizReset">Reiniciar quiz</button></div>
+</section>
+
+<!-- ===================== CHECKLIST ===================== -->
+<section id="checklist">
+  <div class="eyebrow">Antes de entregar</div>
+  <h2>Checklist del examen</h2>
+  <div class="grid g2">
+    <div class="card">
+      <h3>Caso 1 · Modelo físico</h3>
+      <ul class="check-list" data-key="ck1">
+        <li><input type="checkbox"><span><code>CREATE DATABASE</code> + <code>GO</code> + <code>USE</code> al inicio.</span></li>
+        <li><input type="checkbox"><span>Una tabla por entidad; las N:M tienen tabla intermedia.</span></li>
+        <li><input type="checkbox"><span>Todas las tablas tienen PRIMARY KEY.</span></li>
+        <li><input type="checkbox"><span>FK en el lado "muchos", con el <b>mismo tipo de dato</b> que la PK referenciada.</span></li>
+        <li><input type="checkbox"><span>Tipos correctos: dinero en DECIMAL, DNI/teléfono en CHAR/VARCHAR, fechas en DATE.</span></li>
+        <li><input type="checkbox"><span>UNIQUE, CHECK, DEFAULT y NOT NULL que pide el enunciado.</span></li>
+        <li><input type="checkbox"><span>Restricciones nombradas (PK_, FK_, UQ_, CK_, DF_).</span></li>
+        <li><input type="checkbox"><span>Tablas padre creadas antes que las hijas.</span></li>
+        <li><input type="checkbox"><span>Comas entre columnas y ninguna coma antes del paréntesis final.</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Caso 2 · DML</h3>
+      <ul class="check-list" data-key="ck2">
+        <li><input type="checkbox"><span>INSERT con lista de columnas explícita.</span></li>
+        <li><input type="checkbox"><span>Insertar primero en tablas padre, luego en hijas.</span></li>
+        <li><input type="checkbox"><span>No enviar columnas IDENTITY.</span></li>
+        <li><input type="checkbox"><span>Textos y fechas entre comillas simples; números sin comillas.</span></li>
+        <li><input type="checkbox"><span>Todo UPDATE y DELETE con WHERE (salvo que pidan afectar todo).</span></li>
+        <li><input type="checkbox"><span>Para borrar un padre, borrar antes sus filas hijas.</span></li>
+        <li><input type="checkbox"><span><code>IS NULL</code>, nunca <code>= NULL</code>.</span></li>
+        <li><input type="checkbox"><span>Columnas no agregadas del SELECT presentes en el GROUP BY.</span></li>
+        <li><input type="checkbox"><span>WHERE filtra filas; HAVING filtra grupos.</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout info"><strong>Casos de la profesora</strong>Cuando tengas los modelos de casos, se pueden agregar aquí como ejercicios resueltos con el mismo formato del caso Universidad.</div>
+</section>
+
+</main>
+
+<footer>Web de estudio basada en los materiales del curso (UPC, Mayta Guillermo, 2026): DDL, DML y Sentencia SELECT.</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+<script>
+/* ======================= UTILIDADES ======================= */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+/* ======================= TEMA ======================= */
+(function(){
+  const saved = store.get('sqlprep-theme', null);
+  if(saved) document.documentElement.setAttribute('data-theme', saved);
+  $('#themeBtn').addEventListener('click', () => {
+    const cur = document.documentElement.getAttribute('data-theme')
+      || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    const next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    store.set('sqlprep-theme', next);
+  });
+})();
+
+/* ======================= RESALTADO SQL ======================= */
+const KW = new Set(('SELECT FROM WHERE GROUP BY HAVING ORDER ASC DESC INSERT INTO VALUES UPDATE SET DELETE CREATE TABLE DATABASE ALTER ADD COLUMN DROP TRUNCATE PRIMARY KEY FOREIGN REFERENCES CONSTRAINT UNIQUE NOT NULL CHECK DEFAULT IDENTITY AND OR IN BETWEEN LIKE IS AS JOIN INNER LEFT RIGHT FULL OUTER ON DISTINCT TOP EXEC USE GO BEGIN END TRAN TRANSACTION COMMIT ROLLBACK CASCADE INDEX VIEW EXISTS CASE WHEN THEN ELSE TRY CATCH PRINT UNION ALL WITH NO ACTION IF').split(' '));
+const TYPES = new Set('INT SMALLINT TINYINT BIGINT VARCHAR NVARCHAR CHAR NCHAR DATE DATETIME DECIMAL NUMERIC MONEY BIT FLOAT TEXT REAL INTEGER'.split(' '));
+const FNS = new Set('COUNT SUM AVG MIN MAX SUBSTRING SUBSTR UPPER LOWER LEN LENGTH GETDATE YEAR MONTH ROUND COALESCE ERROR_MESSAGE SP_RENAME SP_HELP'.split(' '));
+function highlight(code){
+  const re = /(--[^\n]*)|('(?:[^']|'')*')|(\b\d+(?:\.\d+)?\b)|([A-Za-z_][A-Za-z0-9_]*)|([\s\S])/g;
+  let out = '', m;
+  while((m = re.exec(code))){
+    if(m[1]) out += `<span class="t-com">${esc(m[1])}</span>`;
+    else if(m[2]) out += `<span class="t-str">${esc(m[2])}</span>`;
+    else if(m[3]) out += `<span class="t-num">${m[3]}</span>`;
+    else if(m[4]){
+      const u = m[4].toUpperCase();
+      if(KW.has(u)) out += `<span class="t-kw">${m[4]}</span>`;
+      else if(TYPES.has(u)) out += `<span class="t-type">${m[4]}</span>`;
+      else if(FNS.has(u)) out += `<span class="t-fn">${m[4]}</span>`;
+      else out += esc(m[4]);
+    } else out += esc(m[5]);
+  }
+  return out;
+}
+$$('pre code').forEach(c => {
+  const raw = c.textContent;
+  c.innerHTML = highlight(raw);
+  const b = document.createElement('button');
+  b.className = 'copy'; b.textContent = 'Copiar';
+  b.onclick = () => {
+    const done = () => { b.textContent = '¡Copiado!'; setTimeout(()=>b.textContent='Copiar', 1400); };
+    if(navigator.clipboard) navigator.clipboard.writeText(raw).then(done).catch(()=>{});
+  };
+  c.parentElement.appendChild(b);
+});
+
+/* ======================= TABS ======================= */
+$$('.tabs').forEach(group => {
+  const tabs = group.querySelectorAll('.tab');
+  tabs.forEach(t => t.addEventListener('click', () => {
+    tabs.forEach(x => { x.classList.remove('active'); document.getElementById(x.dataset.panel).classList.remove('active'); });
+    t.classList.add('active');
+    document.getElementById(t.dataset.panel).classList.add('active');
+  }));
+});
+
+/* ======================= NAV ACTIVO ======================= */
+const navLinks = $$('#navlinks a');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting){
+      navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+    }
+  });
+}, {rootMargin: '-40% 0px -55% 0px'});
+$$('main section[id]').forEach(s => obs.observe(s));
+
+/* ======================= CHECKLIST ======================= */
+$$('.check-list').forEach(list => {
+  const key = 'sqlprep-' + list.dataset.key;
+  const saved = store.get(key, []);
+  list.querySelectorAll('input').forEach((inp, i) => {
+    inp.checked = !!saved[i];
+    inp.addEventListener('change', () => {
+      store.set(key, Array.from(list.querySelectorAll('input')).map(x => x.checked));
+    });
+  });
+});
+
+/*TEST-START*/
+const SEED = `
+PRAGMA foreign_keys = ON;
+CREATE TABLE Carrera (
+  CarreraID INT PRIMARY KEY,
+  Nombre VARCHAR(100) NOT NULL UNIQUE,
+  Facultad VARCHAR(80) NOT NULL
+);
+CREATE TABLE Curso (
+  CursoID INT PRIMARY KEY,
+  Nombre VARCHAR(100) NOT NULL,
+  Creditos INT NOT NULL CHECK (Creditos BETWEEN 1 AND 6),
+  Costo DECIMAL(8,2) NOT NULL CHECK (Costo >= 0)
+);
+CREATE TABLE Estudiante (
+  EstudianteID INT PRIMARY KEY,
+  Nombres VARCHAR(100) NOT NULL,
+  Apellidos VARCHAR(100) NOT NULL,
+  Email VARCHAR(150) UNIQUE,
+  FechaNac DATE,
+  Ciudad VARCHAR(60) NOT NULL DEFAULT 'Lima',
+  CarreraID INT NOT NULL,
+  CONSTRAINT FK_Estudiante_Carrera FOREIGN KEY (CarreraID) REFERENCES Carrera(CarreraID)
+);
+CREATE TABLE Matricula (
+  MatriculaID INT PRIMARY KEY,
+  EstudianteID INT NOT NULL,
+  CursoID INT NOT NULL,
+  Ciclo VARCHAR(7) NOT NULL,
+  Nota DECIMAL(4,1) CHECK (Nota BETWEEN 0 AND 20),
+  Estado VARCHAR(12) NOT NULL DEFAULT 'Activa' CHECK (Estado IN ('Activa','Retirada','Aprobada','Desaprobada')),
+  CONSTRAINT FK_Matricula_Estudiante FOREIGN KEY (EstudianteID) REFERENCES Estudiante(EstudianteID),
+  CONSTRAINT FK_Matricula_Curso FOREIGN KEY (CursoID) REFERENCES Curso(CursoID),
+  CONSTRAINT UQ_Matricula UNIQUE (EstudianteID, CursoID, Ciclo)
+);
+INSERT INTO Carrera VALUES
+(1,'Ingeniería de Sistemas','Ingeniería'),
+(2,'Ingeniería de Software','Ingeniería'),
+(3,'Administración','Negocios'),
+(4,'Arquitectura','Arquitectura');
+INSERT INTO Curso VALUES
+(1,'Base de Datos',4,550.00),
+(2,'Programación I',4,520.00),
+(3,'Matemática Discreta',3,400.00),
+(4,'Estadística',3,380.00),
+(5,'Contabilidad',3,350.00),
+(6,'Taller de Proyecto',5,650.00);
+INSERT INTO Estudiante VALUES
+(1,'Ana','Torres','ana.torres@mail.com','2004-05-12','Lima',1),
+(2,'Luis','Gómez','luis.gomez@mail.com','2003-11-02','Arequipa',1),
+(3,'María','Rojas',NULL,'2005-01-20','Lima',2),
+(4,'Carlos','Ruiz','carlos.ruiz@mail.com','2004-08-30','Trujillo',3),
+(5,'Lucía','Ramírez','lucia.ramirez@mail.com','2005-06-15','Lima',2),
+(6,'Jorge','Mendoza',NULL,'2003-02-27','Arequipa',3),
+(7,'Sofía','Castillo','sofia.castillo@mail.com','2004-12-05','Cusco',1),
+(8,'Diego','Paredes','diego.paredes@mail.com','2005-09-09','Lima',2),
+(9,'Valentina','Ríos','valentina.rios@mail.com','2004-03-18','Trujillo',3),
+(10,'Mateo','Salazar',NULL,'2003-07-22','Lima',1);
+INSERT INTO Matricula VALUES
+(1,1,1,'2025-2',17,'Aprobada'),
+(2,1,3,'2025-2',15,'Aprobada'),
+(3,2,1,'2025-2',11,'Desaprobada'),
+(4,3,2,'2025-2',16,'Aprobada'),
+(5,4,5,'2025-2',13,'Aprobada'),
+(6,5,2,'2025-2',NULL,'Retirada'),
+(7,6,4,'2025-2',9,'Desaprobada'),
+(8,7,1,'2026-1',18,'Activa'),
+(9,7,6,'2026-1',14,'Activa'),
+(10,8,2,'2026-1',12,'Activa'),
+(11,8,3,'2026-1',15.5,'Activa'),
+(12,9,5,'2026-1',16,'Activa'),
+(13,9,4,'2026-1',NULL,'Retirada'),
+(14,10,1,'2026-1',10,'Activa'),
+(15,10,6,'2026-1',13,'Activa'),
+(16,3,6,'2026-1',NULL,'Activa'),
+(17,2,1,'2026-1',14,'Activa'),
+(18,5,2,'2026-1',17,'Activa'),
+(19,4,4,'2026-1',12.5,'Activa'),
+(20,1,6,'2026-1',19,'Activa');
+`;
+
+const EXERCISES = [
+  { tag:'SELECT · WHERE', title:'Estudiantes de Arequipa',
+    prompt:'Muestra <code>Nombres</code> y <code>Apellidos</code> de los estudiantes cuya ciudad es <b>Arequipa</b>.',
+    hint:'Compara la columna Ciudad con un texto entre comillas simples.',
+    solution:"SELECT Nombres, Apellidos\nFROM Estudiante\nWHERE Ciudad = 'Arequipa';" },
+  { tag:'SELECT · BETWEEN', title:'Cursos por rango de costo',
+    prompt:'Lista <code>Nombre</code> y <code>Costo</code> de los cursos cuyo costo está <b>entre 400 y 600</b> (incluidos).',
+    hint:'BETWEEN valor1 AND valor2 incluye ambos extremos.',
+    solution:'SELECT Nombre, Costo\nFROM Curso\nWHERE Costo BETWEEN 400 AND 600;' },
+  { tag:'SELECT · LIKE', title:'Apellidos que empiezan con R',
+    prompt:'Muestra <code>EstudianteID</code>, <code>Nombres</code> y <code>Apellidos</code> de los estudiantes cuyo apellido <b>empieza con R</b>.',
+    hint:"El comodín % representa cualquier cantidad de caracteres: 'R%'.",
+    solution:"SELECT EstudianteID, Nombres, Apellidos\nFROM Estudiante\nWHERE Apellidos LIKE 'R%';" },
+  { tag:'SELECT · IS NULL', title:'Estudiantes sin correo',
+    prompt:'Muestra <code>Nombres</code> y <code>Apellidos</code> de los estudiantes que <b>no tienen email</b> registrado.',
+    hint:'Con NULL no se usa =. Se usa IS NULL.',
+    solution:'SELECT Nombres, Apellidos\nFROM Estudiante\nWHERE Email IS NULL;' },
+  { tag:'SELECT · IN · AND', title:'Matrículas cerradas del 2025-2',
+    prompt:"Muestra <code>MatriculaID</code>, <code>EstudianteID</code> y <code>Nota</code> de las matrículas del ciclo <b>'2025-2'</b> cuyo estado sea <b>'Aprobada' o 'Desaprobada'</b>.",
+    hint:"Combina Ciclo = '2025-2' AND Estado IN (...).",
+    solution:"SELECT MatriculaID, EstudianteID, Nota\nFROM Matricula\nWHERE Ciclo = '2025-2'\n  AND Estado IN ('Aprobada','Desaprobada');" },
+  { tag:'GROUP BY · ORDER BY', title:'Estudiantes por ciudad', ordered:true,
+    prompt:'Muestra cada <code>Ciudad</code> y la <b>cantidad</b> de estudiantes. Ordena de mayor a menor cantidad y, si empatan, por ciudad alfabéticamente.',
+    hint:'COUNT(*) con GROUP BY Ciudad. ORDER BY admite dos criterios separados por coma.',
+    solution:'SELECT Ciudad, COUNT(*) AS Cantidad\nFROM Estudiante\nGROUP BY Ciudad\nORDER BY Cantidad DESC, Ciudad ASC;' },
+  { tag:'GROUP BY · HAVING', title:'Cursos con buen promedio',
+    prompt:'Muestra <code>CursoID</code> y el <b>promedio de nota redondeado a 2 decimales</b>, considerando solo notas no nulas, y solo para los cursos cuyo promedio sea <b>mayor a 14</b>.',
+    hint:'WHERE Nota IS NOT NULL filtra filas; HAVING AVG(Nota) > 14 filtra grupos. Usa ROUND(AVG(Nota), 2).',
+    solution:'SELECT CursoID, ROUND(AVG(Nota), 2) AS Promedio\nFROM Matricula\nWHERE Nota IS NOT NULL\nGROUP BY CursoID\nHAVING AVG(Nota) > 14;' },
+  { tag:'JOIN', title:'Notas del ciclo 2026-1',
+    prompt:"Muestra el <code>Apellidos</code> del estudiante, el <code>Nombre</code> del curso y la <code>Nota</code> de todas las matrículas del ciclo <b>'2026-1'</b>.",
+    hint:'Une Matricula con Estudiante (por EstudianteID) y con Curso (por CursoID).',
+    solution:"SELECT e.Apellidos, c.Nombre, m.Nota\nFROM Matricula m\nINNER JOIN Estudiante e ON e.EstudianteID = m.EstudianteID\nINNER JOIN Curso c ON c.CursoID = m.CursoID\nWHERE m.Ciclo = '2026-1';" },
+  { tag:'INSERT', title:'Registrar una estudiante',
+    prompt:"Inserta a la estudiante con ID <b>11</b>: <b>Valeria Quispe</b>, email <b>valeria.quispe@mail.com</b>, nacida el <b>2005-03-14</b>, de <b>Cusco</b>, en la carrera <b>2</b>.",
+    hint:'INSERT INTO Estudiante (columnas...) VALUES (...). Fechas y textos entre comillas.',
+    check:'SELECT * FROM Estudiante WHERE EstudianteID = 11;',
+    solution:"INSERT INTO Estudiante (EstudianteID, Nombres, Apellidos, Email, FechaNac, Ciudad, CarreraID)\nVALUES (11, 'Valeria', 'Quispe', 'valeria.quispe@mail.com', '2005-03-14', 'Cusco', 2);" },
+  { tag:'INSERT · DEFAULT', title:'Matrícula usando valores por defecto',
+    prompt:"Inserta la matrícula <b>21</b> del estudiante <b>6</b> en el curso <b>3</b> para el ciclo <b>'2026-1'</b>, <b>sin enviar</b> Nota ni Estado (deben quedar NULL y 'Activa').",
+    hint:'Lista solo las columnas que envías; las demás toman NULL o su DEFAULT.',
+    check:'SELECT * FROM Matricula WHERE MatriculaID = 21;',
+    solution:"INSERT INTO Matricula (MatriculaID, EstudianteID, CursoID, Ciclo)\nVALUES (21, 6, 3, '2026-1');" },
+  { tag:'UPDATE', title:'Subir el costo de cursos de 4 créditos',
+    prompt:'Aumenta en <b>10%</b> el costo de los cursos que tienen <b>4 créditos</b>.',
+    hint:'SET Costo = Costo * 1.10 con un WHERE sobre Creditos.',
+    check:'SELECT CursoID, ROUND(Costo, 2) FROM Curso ORDER BY CursoID;',
+    solution:'UPDATE Curso\nSET Costo = Costo * 1.10\nWHERE Creditos = 4;' },
+  { tag:'UPDATE · varias condiciones', title:'Cerrar el ciclo 2026-1',
+    prompt:"En el ciclo <b>'2026-1'</b>, para las matrículas que <b>tienen nota</b>: pon Estado <b>'Aprobada'</b> si la nota es ≥ 13 y <b>'Desaprobada'</b> si es menor a 13. Las que no tienen nota no cambian.",
+    hint:'Puedes hacerlo con dos UPDATE (uno por estado) o con uno solo usando CASE.',
+    check:'SELECT MatriculaID, Estado FROM Matricula ORDER BY MatriculaID;',
+    solution:"UPDATE Matricula SET Estado = 'Aprobada'\nWHERE Ciclo = '2026-1' AND Nota >= 13;\n\nUPDATE Matricula SET Estado = 'Desaprobada'\nWHERE Ciclo = '2026-1' AND Nota < 13;" },
+  { tag:'DELETE', title:'Eliminar matrículas retiradas',
+    prompt:"Elimina todas las matrículas con estado <b>'Retirada'</b>.",
+    hint:'DELETE FROM ... WHERE Estado = ...',
+    check:'SELECT MatriculaID FROM Matricula ORDER BY MatriculaID;',
+    solution:"DELETE FROM Matricula\nWHERE Estado = 'Retirada';" },
+  { tag:'DELETE · FK', title:'Eliminar a un estudiante con matrículas',
+    prompt:'Elimina al estudiante <b>10</b>. Tiene matrículas, así que la FK impedirá borrarlo directamente. Prueba primero solo el DELETE del estudiante para ver el error.',
+    hint:'Primero borra las filas hijas en Matricula y luego el padre en Estudiante.',
+    check:'SELECT (SELECT COUNT(*) FROM Estudiante WHERE EstudianteID = 10), (SELECT COUNT(*) FROM Matricula WHERE EstudianteID = 10), (SELECT COUNT(*) FROM Matricula);',
+    solution:'DELETE FROM Matricula  WHERE EstudianteID = 10;\nDELETE FROM Estudiante WHERE EstudianteID = 10;' },
+  { tag:'DDL · CREATE', title:'Crear la tabla Docente',
+    prompt:'Crea la tabla <code>Docente</code> con estas columnas en este orden: <code>DocenteID INT</code> (PK), <code>Nombres VARCHAR(100)</code> obligatorio, <code>Email VARCHAR(150)</code> único, <code>CarreraID INT</code> obligatorio y FK hacia <code>Carrera</code>.',
+    hint:'Usa CONSTRAINT FK_Docente_Carrera FOREIGN KEY (CarreraID) REFERENCES Carrera(CarreraID).',
+    check:"SELECT name, UPPER(type), \"notnull\", pk FROM pragma_table_info('Docente') ORDER BY cid;",
+    solution:'CREATE TABLE Docente (\n  DocenteID INT PRIMARY KEY,\n  Nombres VARCHAR(100) NOT NULL,\n  Email VARCHAR(150) UNIQUE,\n  CarreraID INT NOT NULL,\n  CONSTRAINT FK_Docente_Carrera FOREIGN KEY (CarreraID) REFERENCES Carrera(CarreraID)\n);' },
+  { tag:'DDL · ALTER', title:'Agregar teléfono al estudiante',
+    prompt:'Agrega la columna <code>Telefono VARCHAR(20)</code> a la tabla <code>Estudiante</code>.',
+    hint:'ALTER TABLE ... ADD ... (en SQLite: ADD COLUMN o ADD, ambos funcionan).',
+    check:"SELECT name, UPPER(type) FROM pragma_table_info('Estudiante') WHERE name = 'Telefono';",
+    solution:'ALTER TABLE Estudiante\nADD Telefono VARCHAR(20);' }
+];
+/*TEST-END*/
+
+/* ======================= MOTOR ======================= */
+let SQL = null, freeDB = null;
+
+function newDB(){ const db = new SQL.Database(); db.exec(SEED); return db; }
+
+function friendlyError(msg){
+  const map = [
+    [/FOREIGN KEY constraint failed/i, 'Se violó una clave foránea: el valor no existe en la tabla padre, o intentas borrar un padre que todavía tiene filas hijas.'],
+    [/UNIQUE constraint failed: (.+)/i, 'Valor repetido en una columna UNIQUE o PRIMARY KEY ($1).'],
+    [/NOT NULL constraint failed: (.+)/i, 'Falta un valor obligatorio (NOT NULL) en $1.'],
+    [/CHECK constraint failed/i, 'El valor no cumple una restricción CHECK (por ejemplo, nota fuera de 0–20 o estado no permitido).'],
+    [/no such table: (.+)/i, 'La tabla $1 no existe. Revisa el nombre.'],
+    [/no such column: (.+)/i, 'La columna $1 no existe. Revisa el nombre o el alias.'],
+    [/syntax error/i, 'Error de sintaxis: revisa comas, paréntesis, comillas y palabras clave.'],
+    [/table (.+) already exists/i, 'La tabla $1 ya existe.'],
+    [/misuse of aggregate/i, 'Uso incorrecto de una función de agregación: para filtrar por COUNT/AVG/SUM usa HAVING, no WHERE.']
+  ];
+  for(const [re, txt] of map){ const m = msg.match(re); if(m) return txt.replace('$1', m[1] || ''); }
+  return '';
+}
+
+function renderResult(res){
+  if(!res) return '';
+  let h = '<div class="tbl-wrap"><table><tr>' + res.columns.map(c=>`<th>${esc(c)}</th>`).join('') + '</tr>';
+  res.values.slice(0, 200).forEach(r => {
+    h += '<tr>' + r.map(v => `<td>${v === null ? '<i style="color:var(--muted)">NULL</i>' : esc(v)}</td>`).join('') + '</tr>';
+  });
+  h += '</table></div>';
+  return h + `<div class="kbd">${res.values.length} fila(s)</div>`;
+}
+
+function runAll(db, code){ return db.exec(code); }
+
+function finalResult(db, code, check){
+  const r = runAll(db, code);
+  if(check){ const c = db.exec(check); return c.length ? c[c.length-1] : {columns:[], values:[]}; }
+  return r.length ? r[r.length-1] : {columns:[], values:[]};
+}
+
+function sameResult(a, b, ordered){
+  const norm = v => typeof v === 'number' ? Math.round(v * 100) / 100 : v;
+  const rows = x => x.values.map(r => JSON.stringify(r.map(norm)));
+  const ra = rows(a), rb = rows(b);
+  if(ra.length !== rb.length) return false;
+  if(a.columns.length !== b.columns.length) return false;
+  if(!ordered){ ra.sort(); rb.sort(); }
+  return ra.every((r, i) => r === rb[i]);
+}
+
+/* ======================= EJERCICIOS ======================= */
+let cur = 0;
+let done = store.get('sqlprep-done', {});
+let drafts = store.get('sqlprep-drafts', {});
+
+function renderList(){
+  const list = $('#exList');
+  list.innerHTML = '';
+  EXERCISES.forEach((ex, i) => {
+    const b = document.createElement('button');
+    b.className = 'ex-item' + (i === cur ? ' active' : '') + (done[i] ? ' done' : '');
+    b.innerHTML = `<span class="dot">${done[i] ? '✓' : ''}</span><span>${i+1}. ${esc(ex.title)}</span><span class="tag">${esc(ex.tag.split(' · ')[0])}</span>`;
+    b.onclick = () => openEx(i);
+    list.appendChild(b);
+  });
+  const n = Object.values(done).filter(Boolean).length;
+  $('#progressTxt').textContent = `Progreso: ${n} de ${EXERCISES.length} resueltos`;
+}
+
+function openEx(i){
+  cur = i;
+  const ex = EXERCISES[i];
+  $('#exTag').textContent = ex.tag;
+  $('#exTitle').textContent = `${i+1}. ${ex.title}`;
+  $('#exPrompt').innerHTML = ex.prompt;
+  $('#exEditor').value = drafts[i] || '';
+  $('#exOut').innerHTML = '';
+  renderList();
+}
+
+function checkEx(){
+  if(!SQL) return;
+  const ex = EXERCISES[cur];
+  const code = $('#exEditor').value.trim();
+  drafts[cur] = $('#exEditor').value; store.set('sqlprep-drafts', drafts);
+  if(!code){ $('#exOut').innerHTML = '<div class="msg info">Escribe una sentencia primero.</div>'; return; }
+  let user, expected, html = '';
+  const dbU = newDB();
+  try{
+    user = finalResult(dbU, code, ex.check);
+  }catch(e){
+    const f = friendlyError(e.message);
+    $('#exOut').innerHTML = `<div class="msg err"><b>Error:</b> ${esc(e.message)}${f ? '<br>' + esc(f) : ''}</div>`;
+    dbU.close(); return;
+  }
+  const dbS = newDB();
+  expected = finalResult(dbS, ex.solution, ex.check);
+  dbU.close(); dbS.close();
+  const ok = sameResult(user, expected, ex.ordered);
+  if(ok){
+    done[cur] = true; store.set('sqlprep-done', done);
+    html += '<div class="msg ok"><b>¡Correcto!</b> Tu resultado coincide con el esperado.</div>';
+  } else {
+    html += '<div class="msg err"><b>Aún no.</b> El resultado no coincide con el esperado. Compara las dos tablas.</div>';
+  }
+  html += `<div class="res-title">${ex.check ? 'Estado de la tabla tras tu código' : 'Tu resultado'}</div>` + renderResult(user);
+  if(!ok) html += '<div class="res-title">Resultado esperado</div>' + renderResult(expected);
+  $('#exOut').innerHTML = html;
+  renderList();
+}
+
+$('#exRun').onclick = checkEx;
+$('#exHint').onclick = () => { $('#exOut').innerHTML = `<div class="msg info"><b>Pista:</b> ${esc(EXERCISES[cur].hint)}</div>`; };
+$('#exSol').onclick = () => {
+  const s = EXERCISES[cur].solution;
+  $('#exOut').innerHTML = `<div class="res-title">Solución propuesta (hay otras formas válidas)</div><pre><code>${highlight(s)}</code></pre>`;
+};
+$('#exNext').onclick = () => openEx((cur + 1) % EXERCISES.length);
+$('#exEditor').addEventListener('input', () => { drafts[cur] = $('#exEditor').value; store.set('sqlprep-drafts', drafts); });
+
+/* ======================= MODO LIBRE ======================= */
+function runFree(){
+  if(!SQL) return;
+  const code = $('#freeEditor').value;
+  try{
+    const res = freeDB.exec(code);
+    const changes = freeDB.getRowsModified();
+    let html = res.length ? '' : `<div class="msg ok">Ejecutado correctamente. Filas afectadas por la última sentencia: ${changes}.</div>`;
+    res.forEach((r, i) => { html += (res.length > 1 ? `<div class="res-title">Resultado ${i+1}</div>` : '') + renderResult(r); });
+    $('#freeOut').innerHTML = html;
+  }catch(e){
+    const f = friendlyError(e.message);
+    $('#freeOut').innerHTML = `<div class="msg err"><b>Error:</b> ${esc(e.message)}${f ? '<br>' + esc(f) : ''}</div>`;
+  }
+}
+$('#freeRun').onclick = runFree;
+$('#freeReset').onclick = () => { if(SQL){ freeDB.close(); freeDB = newDB(); $('#freeOut').innerHTML = '<div class="msg info">Base de datos reiniciada con los datos originales.</div>'; renderSchema(); } };
+
+[['#exEditor', checkEx], ['#freeEditor', runFree]].forEach(([sel, fn]) => {
+  $(sel).addEventListener('keydown', e => {
+    if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); fn(); }
+    if(e.key === 'Tab'){ e.preventDefault(); const t = e.target, s = t.selectionStart; t.value = t.value.slice(0, s) + '  ' + t.value.slice(t.selectionEnd); t.selectionStart = t.selectionEnd = s + 2; }
+  });
+});
+
+/* ======================= ESQUEMA ======================= */
+function renderSchema(){
+  const db = newDB();
+  let html = '';
+  ['Carrera', 'Estudiante', 'Curso', 'Matricula'].forEach(t => {
+    const r = db.exec(`SELECT * FROM ${t}`)[0];
+    html += `<h3>${t}</h3>` + renderResult(r);
+  });
+  db.close();
+  $('#panelSchema').innerHTML = '<p class="lead">Datos originales del laboratorio (no reflejan los cambios del modo libre).</p>' + html;
+}
+
+/* ======================= MODOS ======================= */
+const modes = {modeEx: 'panelEx', modeFree: 'panelFree', modeSchema: 'panelSchema'};
+Object.keys(modes).forEach(id => {
+  $('#' + id).onclick = () => {
+    Object.entries(modes).forEach(([b, p]) => {
+      $('#' + b).classList.toggle('active', b === id);
+      $('#' + p).style.display = b === id ? '' : 'none';
+    });
+  };
+});
+
+/* ======================= INICIO DEL MOTOR ======================= */
+openEx(0);
+if(typeof initSqlJs === 'function'){
+  initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${f}` })
+    .then(S => {
+      SQL = S; freeDB = newDB(); renderSchema();
+      $('#labStatus').className = 'msg ok';
+      $('#labStatus').textContent = 'Motor SQL listo. Base de datos Universidad cargada (Carrera, Estudiante, Curso, Matricula).';
+    })
+    .catch(err => {
+      $('#labStatus').className = 'msg err';
+      $('#labStatus').textContent = 'No se pudo cargar el motor SQL (' + err.message + '). Revisa tu conexión a internet y recarga la página.';
+    });
+} else {
+  $('#labStatus').className = 'msg err';
+  $('#labStatus').textContent = 'No se pudo cargar el motor SQL. Revisa tu conexión a internet y recarga la página.';
+}
+
+/* ======================= QUIZ ======================= */
+const QUIZ = [
+  {q:'¿Cuál de estas sentencias pertenece al DDL?', o:['INSERT','UPDATE','TRUNCATE','SELECT'], a:2, e:'TRUNCATE es DDL: actúa sobre la tabla. INSERT, UPDATE y SELECT son DML.'},
+  {q:'¿Cuál es la diferencia entre DROP TABLE y TRUNCATE TABLE?', o:['Ninguna, ambos borran solo los datos','DROP elimina estructura y datos; TRUNCATE borra las filas y mantiene la tabla','TRUNCATE elimina la tabla; DROP solo los datos','DROP admite WHERE y TRUNCATE no'], a:1, e:'Con TRUNCATE la definición de la tabla permanece intacta; con DROP desaparece todo.'},
+  {q:'¿Qué pasa si ejecutas UPDATE Employee SET Salary = Salary * 1.10 sin WHERE?', o:['Da error de sintaxis','Solo modifica la primera fila','Modifica todas las filas de la tabla','No hace nada'], a:2, e:'Sin WHERE, UPDATE y DELETE afectan a todos los registros.'},
+  {q:'Según el orden lógico de procesamiento, ¿qué cláusula se evalúa primero?', o:['SELECT','WHERE','FROM','ORDER BY'], a:2, e:'FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY.'},
+  {q:'Quieres mostrar solo los clientes con más de 5 pedidos. ¿Dónde va COUNT(OrderID) > 5?', o:['WHERE','HAVING','ORDER BY','FROM'], a:1, e:'HAVING filtra grupos después del GROUP BY. WHERE filtra filas antes de agrupar y no admite agregaciones.'},
+  {q:'¿Cómo se buscan los estudiantes sin email?', o:["WHERE Email = NULL","WHERE Email = ''","WHERE Email IS NULL","WHERE Email LIKE NULL"], a:2, e:'NULL significa desconocido; se compara con IS NULL / IS NOT NULL.'},
+  {q:'¿Qué tablas se crean primero?', o:['Las que tienen más columnas','Las tablas independientes (sin FK)','Las tablas intermedias','Da igual el orden'], a:1, e:'Una FK necesita que la tabla referenciada ya exista. Primero padres, luego hijas.'},
+  {q:'Intentas DELETE de un estudiante que tiene matrículas y existe la FK. ¿Qué ocurre?', o:['Se borran también sus matrículas','El motor rechaza la operación por la FK','Se borra y las matrículas quedan con NULL','Se borra sin problema'], a:1, e:'Sin ON DELETE CASCADE, la FK impide borrar un padre con hijas. Primero se borran las hijas.'},
+  {q:'Hiciste un UPDATE dentro de BEGIN TRANSACTION y te equivocaste. ¿Qué ejecutas?', o:['COMMIT','ROLLBACK','TRUNCATE','DROP'], a:1, e:'ROLLBACK revierte los cambios aún no confirmados con COMMIT.'},
+  {q:'¿Cómo se renombra una tabla en SQL Server?', o:["RENAME TABLE Student TO Learner","ALTER TABLE Student RENAME Learner","EXEC sp_rename 'Student', 'Learner'","UPDATE Student SET name = 'Learner'"], a:2, e:'SQL Server usa el procedimiento almacenado sp_rename.'},
+  {q:'Un pedido tiene muchos productos y un producto aparece en muchos pedidos. ¿Cómo se implementa?', o:['FK de Producto en Pedido','FK de Pedido en Producto','Una tabla intermedia con FK a ambas','Una sola tabla con todo'], a:2, e:'Las relaciones N:M se resuelven con una tabla intermedia (ej. DetallePedido) con dos FK.'},
+  {q:"¿Qué devuelve WHERE Apellidos LIKE '%ez'?", o:['Apellidos que empiezan con ez','Apellidos que terminan en ez','Apellidos que contienen ez en cualquier parte','Apellidos de exactamente 2 letras'], a:1, e:"% al inicio = cualquier cosa antes. '%ez' → termina en ez (Gómez, Ramírez…)."},
+  {q:'¿Por qué falla SELECT Salary * 12 AS Anual FROM Employee WHERE Anual > 40000?', o:['Porque * no se permite en SELECT','Porque WHERE se procesa antes que SELECT y el alias aún no existe','Porque falta GROUP BY','No falla'], a:1, e:'El alias se crea en SELECT, que va después de WHERE. Usa WHERE Salary * 12 > 40000.'},
+  {q:'¿Cómo cambias el tipo de la columna Phone a VARCHAR(30) en SQL Server?', o:['ALTER TABLE Student MODIFY Phone VARCHAR(30)','ALTER TABLE Student ALTER COLUMN Phone VARCHAR(30)','UPDATE Student SET Phone = VARCHAR(30)','CHANGE TABLE Student Phone VARCHAR(30)'], a:1, e:'SQL Server usa ALTER TABLE ... ALTER COLUMN. MODIFY es de MySQL/Oracle.'},
+  {q:'¿Qué restricción usarías para que el precio sea siempre mayor a cero?', o:['UNIQUE','DEFAULT','CHECK (Precio > 0)','NOT NULL'], a:2, e:'CHECK valida que el valor cumpla una condición.'},
+  {q:'Al ejecutar una sentencia DDL, ¿qué actualiza el sistema?', o:['El log de errores','El diccionario de datos (metadatos)','Solo los datos de la tabla','Nada'], a:1, e:'El diccionario de datos guarda la definición de tablas, columnas, restricciones e índices (sys.tables, sys.columns).'}
+];
+let qState = store.get('sqlprep-quiz', {});
+function renderQuiz(){
+  const box = $('#quizBox'); box.innerHTML = '';
+  QUIZ.forEach((item, i) => {
+    const d = document.createElement('div');
+    d.className = 'card q' + (qState[i] !== undefined ? ' answered' : '');
+    d.innerHTML = `<b>${i+1}. ${esc(item.q)}</b><div class="q-opts"></div><div class="q-exp">${esc(item.e)}</div>`;
+    const opts = d.querySelector('.q-opts');
+    item.o.forEach((op, j) => {
+      const b = document.createElement('button');
+      b.className = 'q-opt'; b.textContent = op;
+      if(qState[i] !== undefined){
+        if(j === item.a) b.classList.add('correct');
+        else if(j === qState[i]) b.classList.add('wrong');
+      }
+      b.onclick = () => { if(qState[i] !== undefined) return; qState[i] = j; store.set('sqlprep-quiz', qState); renderQuiz(); };
+      opts.appendChild(b);
+    });
+    box.appendChild(d);
+  });
+  const answered = Object.keys(qState).length;
+  const correct = Object.entries(qState).filter(([i, v]) => QUIZ[i] && QUIZ[i].a === v).length;
+  $('#quizScore').textContent = `${correct} correctas de ${answered} respondidas · ${QUIZ.length} en total`;
+}
+$('#quizReset').onclick = () => { qState = {}; store.set('sqlprep-quiz', qState); renderQuiz(); };
+renderQuiz();
+</script>
+</body>
+</html>
